@@ -1,24 +1,22 @@
 package com.lee.callcenter;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 import java.util.Scanner;
 
 public class IncomingCall  {
 
     public static class RingingPhone implements Runnable {
 
-        private Call callingCustomer;
+        private static final Logger logger = LoggerFactory.getLogger(RingingPhone.class);
+
+        private Call call;
         private Employee employee;
 
         @Override
         public void run() {
-            callingCustomer = new Call();
-            employee = new Employee();
-
-
-            employee.callAssigned(callingCustomer);
-            System.out.println("Called assigned to employee of type " + employee.getEmployeeType() + " with call duration " + employee.getAssignedCall().getCallDuration() + " seconds.");
 
 
             }
@@ -30,8 +28,7 @@ public class IncomingCall  {
             int userDecision = 0;
             Scanner scanner;
 
-
-                System.out.println("Hello customer, do you want to call our agents? Then press 1 or press 2 to exit.");
+                System.out.println("Hello customer, do you want to call our agents? Then press 1. Or press 2 to exit.");
                 scanner = new Scanner(System.in);
                 userDecision = scanner.nextInt();
 
