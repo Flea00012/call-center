@@ -1,4 +1,5 @@
 package com.lee.callcenter;
+
 import org.apache.commons.lang3.Validate;
 
 import java.util.ArrayList;
@@ -6,11 +7,12 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- *  Class specifies the calls placed to the call center.
- *
- *     The {@code Call} class defines the call that is coming into the call center.
- *     The fields include duration of call, and the method {@code constructRandomCall()} is
- *     used to construct a call within the system.
+ * Class specifies the calls placed to the call center.
+ * <p>
+ * The {@code Call} class defines the call that is coming into the call center.
+ * The fields include a duration of call, and the method {@code constructRandomCall()} is
+ * used to construct a call within the system. The method {@code constructListOfRandomCalls()}
+ * is used to make a list of random calls in the call centre.
  *
  * @author leefowler
  */
@@ -34,7 +36,7 @@ public class Call {
     }
 
     /**
-     * Builds a new random call
+     * Constructs a new random call
      *
      * @param minDurationInSeconds minimum duration in seconds must be equal or greater than zero
      * @param maxDurationInSeconds maximun duration in seconds must be equal or greater than minDurationInSeconds
@@ -46,20 +48,20 @@ public class Call {
     }
 
     /**
-     * Builds a new random call list
+     * Constructs a new random call list
      *
-     * @param listSize             amount of random calls to be created
+     * @param listSize             number of random calls to be created
      * @param minDurationInSeconds minimum duration in seconds of each call must be equal or greater than zero
-     * @param maxDurationInSeconds maximun duration in seconds of each call must be equal or greater than minDurationInSeconds
+     * @param maxDurationInSeconds maximum duration in seconds of each call must be equal or greater than minDurationInSeconds
      * @return A new list of random calls each with a random duration value between minimum and maximum duration
      */
     public static List<Call> constructListOfRandomCalls(Integer listSize, Integer minDurationInSeconds, Integer maxDurationInSeconds) {
         Validate.isTrue(listSize >= 0);
-        List<Call> callList = new ArrayList<>();
+        List<Call> listOfCalls = new ArrayList<>();
         for (int i = 0; i < listSize; i++) {
-            callList.add(constructRandomCall(minDurationInSeconds, maxDurationInSeconds));
+            listOfCalls.add(constructRandomCall(minDurationInSeconds, maxDurationInSeconds));
         }
-        return callList;
+        return listOfCalls;
     }
 
 }

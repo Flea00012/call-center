@@ -14,5 +14,5 @@ public enum EmployeeStatus {
     AVAILABLE,
     UNAVAILABLE,
     ON_LUNCH,
-    GONE_FOR_THE_DAY,
+    GONE_FOR_THE_DAY
 }
