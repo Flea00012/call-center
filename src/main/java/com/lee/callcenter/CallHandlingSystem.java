@@ -10,14 +10,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- *
  *     The {@code CallHandlingSystem} class specifies how an employee should handle calls
- *     that are placed on the call center, and contains the findEmployee method as determined
+ *     that are placed on the call center, and contains the searchForAvailableEmployee method as determined
  *     by the {@code CallHandlingProtocol} Interface.
  *
  *     The first FRESHER is returned when available. If busy, the TECHNICAL_LEAD is returned instead.
  *     If the TECHNICAL_LEAD is busy, the PROJECT_MANAGER is returned
- *     instead.
+ *     instead. This is the call escalation procedure for the call centre.
  *
  * @author leefowler
  */
@@ -26,9 +25,9 @@ public class CallHandlingSystem implements CallHandlingProtocol {
     private static final Logger logger = LoggerFactory.getLogger(CallHandlingSystem.class);
 
     @Override
-    public Employee findEmployee(Collection<Employee> employeeList) {
-        Validate.notNull(employeeList);
-        List<Employee> availableEmployees = employeeList.stream().filter(e -> e.getEmployeeStatus() == EmployeeStatus.AVAILABLE).collect(Collectors.toList());
+    public Employee searchForAvailableEmployee(Collection<Employee> listOfEmployees) {
+        Validate.notNull(listOfEmployees);
+        List<Employee> availableEmployees = listOfEmployees.stream().filter(e -> e.getEmployeeStatus() == EmployeeStatus.AVAILABLE).collect(Collectors.toList());
         logger.info("Available operators: " + availableEmployees.size());
         Optional<Employee> employee = availableEmployees.stream().filter(e -> e.getEmployeeType() == EmployeeType.FRESHER).findAny();
         if (!employee.isPresent()) {

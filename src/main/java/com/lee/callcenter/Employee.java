@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 
 /**
- *  Class specifies the methods that Employee in call center should have
+ *  Class specifies the functions that Employees in call center should perform
  *
  *     The {@code Employee} class defines the employee object and uses a
  *     Composition (has-a) relationship with EmployeeStatus and EmployeeType,
@@ -26,16 +26,16 @@ public class Employee implements Runnable {
 
     private EmployeeStatus employeeStatus;
 
-    private ConcurrentLinkedDeque<Call> liveCalls;
+    private ConcurrentLinkedDeque<Call> dequeOfIncomingCalls;
 
-    private ConcurrentLinkedDeque<Call> completedCalls;
+    private ConcurrentLinkedDeque<Call> dequeOfCompletedCalls;
 
     public Employee(EmployeeType employeeType) {
         Validate.notNull(employeeType);
         this.employeeType = employeeType;
-        this.employeeStatus = employeeStatus.AVAILABLE;
-        this.liveCalls = new ConcurrentLinkedDeque<>();
-        this.completedCalls = new ConcurrentLinkedDeque<>();
+        this.employeeStatus = EmployeeStatus.AVAILABLE;
+        this.dequeOfIncomingCalls = new ConcurrentLinkedDeque<>();
+        this.dequeOfCompletedCalls = new ConcurrentLinkedDeque<>();
     }
 
     public EmployeeType getEmployeeType() {
@@ -51,8 +51,8 @@ public class Employee implements Runnable {
         this.employeeStatus = EmployeeStatus;
     }
 
-    public synchronized List<Call> getCompletedCalls() {
-        return new ArrayList<>(completedCalls);
+    public synchronized List<Call> getDequeOfCompletedCalls() {
+        return new ArrayList<>(dequeOfCompletedCalls);
     }
 
     /**
@@ -60,9 +60,9 @@ public class Employee implements Runnable {
      *
      * @param call call to be attended
      */
-    public synchronized void attend(Call call) {
+    public synchronized void queueCallToDeque(Call call) {
         logger.info("Employee " + Thread.currentThread().getName() + " queues a call of " + call.getDurationInSeconds() + " seconds");
-        this.liveCalls.add(call);
+        this.dequeOfIncomingCalls.add(call);
     }
 
     public static Employee constructFresher() {
@@ -79,27 +79,27 @@ public class Employee implements Runnable {
 
     /**
      * This is the method that runs on the thread.
-     * If the incoming calls queue is not empty, then it changes its state from AVAILABLE to BUSY, takes the call
-     * and when it finishes it changes its state from BUSY back to AVAILABLE. This allows a Thread Pool to decide
-     * to dispatch another call to another employee.
+     * If the incoming calls queue is not empty, then it changes its state from AVAILABLE to UNAVAILABLE, takes the call
+     * and when it finishes it changes its state from UNAVAILABLE back to AVAILABLE. This allows a Thread Pool to decide
+     * to assign another call to another employee.
      */
     @Override
     public void run() {
         logger.info("Employee " + Thread.currentThread().getName() + " starts to work");
         while (true) {
-            if (!this.liveCalls.isEmpty()) {
-                Call call = this.liveCalls.poll();
-                this.setEmployeeStatus(employeeStatus.UNAVAILABLE);
+            if (!this.dequeOfIncomingCalls.isEmpty()) {
+                Call call = this.dequeOfIncomingCalls.poll();
+                this.setEmployeeStatus(EmployeeStatus.UNAVAILABLE);
                 logger.info("Employee " + Thread.currentThread().getName() + " starts working on a call of " + call.getDurationInSeconds() + " seconds");
                 try {
                     TimeUnit.SECONDS.sleep(call.getDurationInSeconds());
                 } catch (InterruptedException e) {
                     logger.error("Employee " + Thread.currentThread().getName() + " was interrupted and could not finish call of " + call.getDurationInSeconds() + " seconds");
                 } finally {
-                    this.setEmployeeStatus(employeeStatus.AVAILABLE);
+                    this.setEmployeeStatus(EmployeeStatus.AVAILABLE);
                 }
-                this.completedCalls.add(call);
-                logger.info("Employee " + Thread.currentThread().getName() + " finishes a call of " + call.getDurationInSeconds() + " seconds");
+                this.dequeOfCompletedCalls.add(call);
+                logger.info("Employee " + Thread.currentThread().getName() + " finished a call of " + call.getDurationInSeconds() + " seconds");
             }
         }
     }

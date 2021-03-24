@@ -1,8 +1,5 @@
 package com.lee.callcenter;
 
-import java.util.Deque;
-
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,42 +19,42 @@ public class CallResolver implements Runnable {
 
     private ExecutorService executorService;
 
-    private ConcurrentLinkedDeque<Employee> employees;
+    private ConcurrentLinkedDeque<Employee> employeeConcurrentLinkedDeque;
 
-    private ConcurrentLinkedDeque<Call> incomingCalls;
+    private ConcurrentLinkedDeque<Call> dequeOfIncomingCalls;
 
     private CallHandlingProtocol callHandlingProtocol;
 
-    public CallResolver(List<Employee> employees) {
-        this(employees, new CallHandlingSystem());
+    public CallResolver(List<Employee> employeeConcurrentLinkedDeque) {
+        this(employeeConcurrentLinkedDeque, new CallHandlingSystem());
     }
 
-    public CallResolver(List<Employee> employees, CallHandlingProtocol callHandlingProtocol) {
-        Validate.notNull(employees);
+    public CallResolver(List<Employee> employeeConcurrentLinkedDeque, CallHandlingProtocol callHandlingProtocol) {
+        Validate.notNull(employeeConcurrentLinkedDeque);
         Validate.notNull(callHandlingProtocol);
-        this.employees = new ConcurrentLinkedDeque(employees);
+        this.employeeConcurrentLinkedDeque = new ConcurrentLinkedDeque(employeeConcurrentLinkedDeque);
         this.callHandlingProtocol = callHandlingProtocol;
-        this.incomingCalls = new ConcurrentLinkedDeque<>();
+        this.dequeOfIncomingCalls = new ConcurrentLinkedDeque<>();
         this.executorService = Executors.newFixedThreadPool(MAX_THREADS);
     }
 
-    public synchronized void dispatch(Call call) {
-        logger.info("Dispatch new call of " + call.getDurationInSeconds() + " seconds");
-        this.incomingCalls.add(call);
+    public synchronized void handlingCall(Call call) {
+        logger.info("Handling a new call of " + call.getDurationInSeconds() + " seconds");
+        this.dequeOfIncomingCalls.add(call);
     }
 
     /**
-     * Starts the employee threads and allows the dispatcher run method to execute
+     * Starts the employee threads and allows the CallHandlingProtocol run() method to execute
      */
     public synchronized void start() {
         this.active = true;
-        for (Employee employee : this.employees) {
+        for (Employee employee : this.employeeConcurrentLinkedDeque) {
             this.executorService.execute(employee);
         }
     }
 
     /**
-     * Stops the employee threads and the dispatcher run method immediately
+     * Stops the employee threads and the CallHandlingProtocol run() method
      */
     public synchronized void stop() {
         this.active = false;
@@ -70,25 +67,25 @@ public class CallResolver implements Runnable {
 
     /**
      * This is the method that runs on the thread.
-     * If the incoming calls queue is not empty, then it searches for and available employee to take the call.
-     * Calls will queue up until some workers becomes available.
+     * If the deque of incoming calls is not empty, then it searches for an available employee to take the call.
+     * Calls will be in queue until some workers becomes available.
      */
     @Override
     public void run() {
         while (getActive()) {
-            if (this.incomingCalls.isEmpty()) {
+            if (this.dequeOfIncomingCalls.isEmpty()) {
                 continue;
             } else {
-                Employee employee = this.callHandlingProtocol.findEmployee(this.employees);
+                Employee employee = this.callHandlingProtocol.searchForAvailableEmployee(this.employeeConcurrentLinkedDeque);
                 if (employee == null) {
                     continue;
                 }
-                Call call = this.incomingCalls.poll();
+                Call call = this.dequeOfIncomingCalls.poll();
                 try {
-                    employee.attend(call);
+                    employee.queueCallToDeque(call);
                 } catch (Exception e) {
                     logger.error(e.getMessage());
-                    this.incomingCalls.addFirst(call);
+                    this.dequeOfIncomingCalls.addFirst(call);
                 }
             }
         }
