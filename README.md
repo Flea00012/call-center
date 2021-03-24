@@ -1,4 +1,4 @@
-## Call Center project
+# Call Center project
 
 The project is a call center architecture design and coding exercise
 
