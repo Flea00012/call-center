@@ -60,12 +60,10 @@ public class CallResolverTest {
         Employee fresher4 = Employee.constructFresher();
         Employee fresher5 = Employee.constructFresher();
         Employee fresher6 = Employee.constructFresher();
-        Employee technicalLead1 = Employee.constructTechnicalLead();
-        Employee technicalLead2 = Employee.constructTechnicalLead();
-        Employee technicalLead3 = Employee.constructTechnicalLead();
+        Employee technicalLead = Employee.constructTechnicalLead();
         Employee productManager = Employee.constructProductManager();
         return Arrays.asList(fresher1, fresher2, fresher3, fresher4, fresher5, fresher6,
-                technicalLead1,technicalLead2, technicalLead3, productManager);
+                technicalLead, productManager);
     }
 
     //helper function
